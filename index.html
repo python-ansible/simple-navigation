@@ -5,74 +5,169 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>simpleNav</title>
+    <title>我的导航</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<header></header>
-<main>
-    <div class="wrapper" id="mainX">
+    <header></header>
+    <main>
+        <div class="wrapper" id="main">
 
-    </div>
-</main>
-<footer></footer>
-<script>
-    var keys = {
-        0: {0:'q', 1:'w', 2:'e', 3:'r', 4:'t', 5:'y', 6:'u', 7:'i', 8:'o', 9:'p', length:10},
-        1: {0:'a', 1:'s', 2:'d', 3:'f', 4:'g', 5:'h', 6:'j', 7:'k', 8:'l', length:9},
-        2: {0:'z', 1:'x', 2:'c', 3:'v', 4:'b', 5:'n', 6:'m', length:7},
-        length: 3
-    }
-    var hash = {
-        'q': 'qq.com',
-        'w': 'weibo.com',
-        'y': 'youtube.com',
-        'i': 'iqiyi.com',
-        'z': 'zhihu.com'
-    }
-    // 取出localStorage 中的 localNav 对应的 hash
-    hashInLocalStorage = JSON.parse(localStorage.getItem('localNav') || 'null')
-    if (hashInLocalStorage) {
-        hash = hashInLocalStorage
-    }
+        </div>
+    </main>
+    <footer></footer>
+    <script>
+    // 1. 初始化数据
+    var data = init()
+    var keys = data['keys']
+    var hash = data['hash']
 
-    // 遍历keys生成div标签
-    index = 0
-    while(index < keys['length']) { // 0 1 2
-        divX = document.createElement('div')
-        mainX.appendChild(divX)
-        row = keys[index]
-        console.log(row)
-        index2 = 0
-        // 遍历keys生成kbd标签
-        while(index2 < row['length']) { // 0~9 0~8 0~6
-            kbdX = document.createElement('kbd')
-            kbdX.textContent = row[index2]
-            buttonX = document.createElement('button')
-            buttonX.textContent = '编辑'
-            buttonX.id = row[index2] // q w e r
-            buttonX.onclick = function(modifyWebsite){
-                // modifyWebsite['target']就是用户点击的元素
-                key = modifyWebsite['target']['id'] // q w e r
-                website = prompt('请输入一个网址') // qq.com
-                hash[key] = website // hash change
-                localStorage.setItem('localNav', JSON.stringify(hash))
-                console.log(hash)
-            }
-            kbdX.appendChild(buttonX)
-            divX.appendChild(kbdX)
-            index2 += 1
+    // 2. 生成键盘
+    generateKeyboard(keys, hash)
+
+    // 3. 监听用户动作
+    listenToUser(hash)
+
+    // 工具函数
+    function init() {
+        var keys = {
+            0: {0: 'q', 1: 'w', 2: 'e', 3: 'r', 4: 't', 5: 'y', 6: 'u', 7: 'i', 8: 'o', 9: 'p', length: 10},
+            1: {0: 'a', 1: 's', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'j', 7: 'k', 8: 'l', length: 9},
+            2: {0: 'z', 1: 'x', 2: 'c', 3: 'v', 4: 'b', 5: 'n', 6: 'm', length: 7},
+            length: 3
         }
-        index += 1
+
+        var hash = {
+            'q': 'qq.com',
+            'w': '',
+            'e': '',
+            'r': '',
+            't': '',
+            'y': '',
+            'u': '',
+            'i': '',
+            'o': '',
+            'p': '',
+            'a': '',
+            's': 'stackoverflow.com',
+            'd': '',
+            'f': '',
+            'g': 'google.com',
+            'h': '',
+            'j': '',
+            'k': '',
+            'l': '',
+            'z': 'zhihu.com',
+            'x': '',
+            'c': '',
+            'v': '',
+            'b': '',
+            'n': '',
+            'm': '',
+        }
+
+        var hashInLocalStorage = getFromLocalStorage('localNav')
+        if (hashInLocalStorage) {
+            hash = hashInLocalStorage
+        }
+        return {
+            'keys': keys,
+            'hash': hash,
+        }
     }
 
-    //监听键盘事件
-    document.onkeypress = function(keyPress){
-        key = keyPress['key']
-        website = hash[key]
-        //location.href = 'http://'+website
-        window.open('http://'+website, '_blank')
+    function getFromLocalStorage(name) {
+        return JSON.parse(localStorage.getItem(name) || 'null')
     }
-</script>
+
+
+    function generateKeyboard(keys, hash) {
+        //生成div
+        for (var index = 0; index < keys['length']; index++) {
+            div = tag('div')
+            div.className = 'row'
+            main.appendChild(div)
+
+            //生成kbd + botton
+            var row = keys[index]
+            for (var index2 = 0; index2 < row['length']; index2++) {
+                var span = createSpan(row[index2])
+
+                var button = createButton(row[index2])
+
+                var img = createImage(hash[row[index2]])
+
+                var kbd = tag('kbd')
+                kbd.className = 'key'
+
+                kbd.appendChild(span)
+                kbd.appendChild(button)
+                kbd.appendChild(img)
+
+                div.appendChild(kbd)
+            }
+        }
+    }
+
+    function tag(tagName) {
+        return  document.createElement(tagName)
+    }
+
+    //span 存放键盘字母
+    //textContent 一个节点及其后代的文本内容
+    function createSpan(textContent){
+        var span = tag('span')
+        span.className = 'text'
+        span.textContent = textContent
+        return span
+    }
+
+    function createButton(id){
+        var button = tag('button')
+        button.textContent = '编辑'
+        button.id = id
+        button.onclick = function(modifyWebsite){
+            var button2 = modifyWebsite['target']
+            //button 的 previousSibling span
+            //button 的 nextSibling img
+            var img2 = button2.nextSibling
+            console.log('prev: '+button2.previousSibling, 'next: '+button2.nextSibling)
+            var key = button2['id']
+            //prompt 提示框
+            var website = prompt('请输入新的网址，不用输入协议(http://)部分')
+            hash[key] = website
+            img2.src = 'http://' + website + '/favicon.ico'
+            img2.onerror = function(errorHandler){
+                errorHandler.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png'
+            }
+            localStorage.setItem('localNav', JSON.stringify(hash))
+        }
+        return button
+    }
+
+    function createImage(domain){
+        var img = tag('img')
+        if (domain) {
+            img.src = 'http://' + domain + '/favicon.ico'
+        } else {
+            img.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png'
+        }
+        // 匿名函数，省略了名称
+        img.onerror = function(errorHandler){
+            errorHandler.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png'
+        }
+        return img
+    }
+
+    function listenToUser(hash) {
+        document.onkeypress = function(keyPress){
+            var key = keyPress['key']
+            var website = hash[key]
+            //location.href = 'http://'+website
+            window.open('http://'+website, '_blank')
+        }
+    }
+    </script>
 </body>
 </html>
+
